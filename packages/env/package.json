@@ -1,0 +1,11 @@
+{
+	"name": "@numero/env",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"dependencies": {
+		"@t3-oss/env-core": "^0.13.8",
+		"zod": "^4.1.12"
+	}
+}
