@@ -2,10 +2,10 @@ services:
   postgres:
     image: postgres:17.5
     restart: unless-stopped
-    container_name: hono-todos
+    container_name: numero-auth
     ports:
-      - '5432:5432'
+      - '5556:5432'
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=user
-      - POSTGRES_DB=todos
+      - POSTGRES_DB=auth
