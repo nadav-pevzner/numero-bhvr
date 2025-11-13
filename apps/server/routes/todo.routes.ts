@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { getTodosByUserId } from '../db/queries';
+import { authQueries } from '../db/auth';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { HonoEnv } from '../types';
 
@@ -9,7 +9,7 @@ export const todos = new Hono<HonoEnv>()
     const user = c.get('user');
 
     try {
-      const todos = await getTodosByUserId(user.id);
+      const todos = await authQueries.getTodosByUserId(user.id);
       return c.json(todos);
     } catch (error) {
       console.error('Failed to fetch todos: ', error);

@@ -1,8 +1,10 @@
+import { createAuthDb, schema } from "@numero/auth-db";
+import { env } from "@numero/env";
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { db } from '../db/db';
-import * as schema from '../db/schema';
 import { openAPI } from 'better-auth/plugins';
+
+const db = createAuthDb(env.AUTH_DB_URL);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -12,6 +14,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  trustedOrigins: [process.env.CLIENT_URL!],
+  trustedOrigins: [env.CLIENT_URL],
   plugins: [openAPI()],
 });
