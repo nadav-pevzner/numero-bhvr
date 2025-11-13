@@ -1,6 +1,9 @@
 {
 	"name": "@numero/chat-db",
 	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
 	"scripts": {
 		"db:up": "docker compose up -d",
 		"db:generate": "drizzle-kit generate",
@@ -11,7 +14,8 @@
 	"dependencies": {
 		"drizzle-orm": "^0.44.4",
 		"hono": "^4.9.0",
-		"pg": "^8.16.3"
+		"pg": "^8.16.3",
+		"@numero/env": "workspace:*"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",

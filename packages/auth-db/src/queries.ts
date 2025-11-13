@@ -1,11 +1,20 @@
-import { desc, eq } from 'drizzle-orm';
-import { db } from './db';
-import { todos } from './schema';
+import { desc, eq } from "drizzle-orm";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { todos } from "./schema";
 
-export const getTodosByUserId = async (userId: string) => {
-  return await db
-    .select()
-    .from(todos)
-    .where(eq(todos.userId, userId))
-    .orderBy(desc(todos.createdAt));
-};
+export function createChatQueries(
+	db: NodePgDatabase<Record<string, never>> & {
+		$client: Pool;
+	},
+) {
+	return {
+		getTodosByUserId: async (userId: string) => {
+			return db
+				.select()
+				.from(todos)
+				.where(eq(todos.userId, userId))
+				.orderBy(desc(todos.createdAt));
+		},
+	};
+}
