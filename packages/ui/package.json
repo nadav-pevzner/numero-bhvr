@@ -18,18 +18,28 @@
     "check-types": "tsc --noEmit",
     "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "dev:components": "tsc --watch",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint src --max-warnings 0",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "peerDependencies": {
-    "react": "^19"
+    "react": "^19.2.0"
   },
   "devDependencies": {
     "@numero/tailwind-config": "workspace:*",
     "@numero/typescript-config": "workspace:*",
-    "@tailwindcss/cli": "^4.1.5",
-    "@types/react": "^19.1.0",
+    "@storybook/react": "^10.0.7",
+    "@storybook/react-vite": "^10.0.7",
+    "@tailwindcss/cli": "^4.1.17",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/react": "^19.2.4",
+    "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
-    "tailwindcss": "^4.1.5",
-    "typescript": "5.9.2"
+    "postcss": "^8.5.6",
+    "react-dom": "^19.2.0",
+    "storybook": "^10.0.7",
+    "tailwindcss": "^4.1.17",
+    "typescript": "5.9.3",
+    "vite": "^7.2.2"
   }
 }

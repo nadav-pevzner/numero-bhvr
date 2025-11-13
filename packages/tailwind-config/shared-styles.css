@@ -43,9 +43,17 @@
 @theme {
   --color-blue-1000: #2a8af6;
   --color-purple-1000: #a853ba;
+  --color-purple-200: #F5F2FF;
   --color-red-1000: #e92a67;
   --color-gradient-start: #A31AFF;
   --color-gradient-end: #3700FF;
   --color-secondary-text: #5206FF;
   --font-family-sans: 'Simona Pro', system-ui, -apple-system, sans-serif;
+  --color-purple-400: #E2D6FF;
+  --color-gray-200: #F4F6F6;
+  --color-gray-400: #E3E9EA;
+}
+
+html{
+  direction: rtl;
 }
