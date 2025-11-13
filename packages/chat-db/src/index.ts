@@ -1,3 +1,4 @@
 export { createChatDb } from "./db";
-export { createChatQueries } from "./queries";
+export { createChatRepository, type ChatRepository } from "./queries";
 export * from "./schema";
+

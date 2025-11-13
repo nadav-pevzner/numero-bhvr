@@ -8,9 +8,10 @@ export const env = createEnv({
 		CHAT_DB_URL: z.url(),
 
 		NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-		PORT: z.string().default("3000"),
 
 		CLIENT_URL: z.string().min(1),
+
+		GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1)
 	},
 
 
