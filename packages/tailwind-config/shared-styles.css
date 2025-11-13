@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Simona Pro';
+  src: url('@numero/tailwind-config/fonts/SimonaPro-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simona Pro';
+  src: url('@numero/tailwind-config/fonts/SimonaPro-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simona Pro';
+  src: url('@numero/tailwind-config/fonts/SimonaPro-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simona Pro';
+  src: url('@numero/tailwind-config/fonts/SimonaPro-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simona Pro';
+  src: url('@numero/tailwind-config/fonts/SimonaPro-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-blue-1000: #2a8af6;
+  --color-purple-1000: #a853ba;
+  --color-red-1000: #e92a67;
+  --color-gradient-start: #A31AFF;
+  --color-gradient-end: #3700FF;
+  --color-secondary-text: #5206FF;
+  --font-family-sans: 'Simona Pro', system-ui, -apple-system, sans-serif;
+}
