@@ -14,7 +14,22 @@ console.log("CORS configured with CLIENT_URL:", env.CLIENT_URL);
 app.use(
   "*", // Enable CORS for all routes
   cors({
-    origin: env.CLIENT_URL || "*",
+    origin: (origin) => {
+      // Allow the configured client URL
+      if (env.CLIENT_URL && origin === env.CLIENT_URL) {
+        return env.CLIENT_URL;
+      }
+      // Allow Vercel preview deployments
+      if (origin?.includes('.vercel.app')) {
+        return origin;
+      }
+      // Allow localhost for development
+      if (origin?.includes('localhost') || origin?.includes('127.0.0.1')) {
+        return origin;
+      }
+      // Default: return the configured client URL or first origin
+      return env.CLIENT_URL || origin || '';
+    },
     allowHeaders: ["Content-Type", "Authorization", "Cookie", "Set-Cookie"],
     allowMethods: ["POST", "GET", "OPTIONS", "DELETE", "PATCH", "PUT"],
     exposeHeaders: ["Content-Length", "Set-Cookie"],
