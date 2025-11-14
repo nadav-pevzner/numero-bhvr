@@ -27,10 +27,9 @@ function RouteComponent() {
 
     try {
       await authClient.signIn.social({
-    provider: "google",
-  });
-
-      router.navigate({ to: '/chat' })
+        provider: "google",
+        callbackURL: "/chat", // Redirect to /chat after successful sign-in
+      });
     } catch (err) {
       setError('Invalid email or password')
       console.error('Signin failed:', err)

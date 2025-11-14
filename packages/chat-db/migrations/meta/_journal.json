@@ -22,6 +22,13 @@
       "when": 1754938727769,
       "tag": "0002_strange_white_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1763068410243,
+      "tag": "0003_curious_raza",
+      "breakpoints": true
     }
   ]
 }

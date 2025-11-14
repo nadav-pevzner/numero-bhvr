@@ -15,6 +15,8 @@ interface UiState {
 
   editingConversationId: number | null;
   editingName: string;
+
+  isLoading: boolean;
 }
 
 interface UiActions {
@@ -30,6 +32,8 @@ interface UiActions {
   startEditingConversation: (id: number, name: string) => void;
   cancelEditingConversation: () => void;
   updateEditingName: (name: string) => void;
+
+  setIsLoading: (isLoading: boolean) => void;
 }
 
 export const useUiStore = create<UiState & UiActions>((set) => ({
@@ -39,6 +43,7 @@ export const useUiStore = create<UiState & UiActions>((set) => ({
   currentQuestionId: null,
   editingConversationId: null,
   editingName: "",
+  isLoading: false,
 
   // Actions
   setInputMessage: (message) =>
@@ -73,6 +78,8 @@ export const useUiStore = create<UiState & UiActions>((set) => ({
     }),
 
   updateEditingName: (editingName) => set({ editingName }),
+
+  setIsLoading: (isLoading) => set({ isLoading }),
 }));
 
 export const useInputMessage = () => useUiStore((state) => state.inputMessage);
