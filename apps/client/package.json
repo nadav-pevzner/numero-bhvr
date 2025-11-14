@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite --port 5000",
     "start": "vite --port 5000",
-    "build": "vite build && tsc",
+    "build": "vite build",
+    "build:check": "vite build && tsc",
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
