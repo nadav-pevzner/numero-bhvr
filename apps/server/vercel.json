@@ -1,21 +1,4 @@
 {
-  "version": 2,
-  "functions": {
-    "**/*.ts": {
-      "runtime": "bun",
-      "bunVersion": "1.x"
-    }
-  },
-  "builds": [
-    {
-      "src": "index.ts",
-      "use": "@vercel/bun"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "index.ts"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "bunVersion": "1.x"
 }
