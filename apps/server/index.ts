@@ -52,10 +52,10 @@ app.use(
   }),
 );
 
-const router = app
+app
   .on(["POST", "GET"], "/auth/**", (c) => auth.handler(c.req.raw))
   .route("/todos", todos)
   .route("/chats", chats);
 
-export type AppType = typeof router;
+export type AppType = typeof app;
 export default app;
