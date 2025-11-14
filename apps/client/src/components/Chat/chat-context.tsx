@@ -1,8 +1,15 @@
 // features/math-assistant/chat-context.tsx
 
 import type { ConversationWithQuestions, QuestionWithMessages } from "@/types";
-import type { Message, Question } from "@numero/chat-db";
+import type { Question } from "@numero/chat-db";
 import { createContext, type ReactNode, useContext } from "react";
+
+export type ConversationMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+};
 
 type ChatContextValue = {
   conversations: ConversationWithQuestions[];
@@ -19,7 +26,7 @@ type ChatContextValue = {
   isLoading: boolean;
   loadingQuestionId: number | null;
 
-  conversationMessages: Message[];
+  conversationMessages: ConversationMessage[];
 
   getStatusColor: (status: Question["status"]) => string;
 };

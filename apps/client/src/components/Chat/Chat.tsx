@@ -2,19 +2,22 @@ import { useConversations } from "@/hooks/useConversations";
 import { apiClient } from "@/lib/api-client";
 import { getStatusColor, mathJaxConfig } from "@/lib/utils";
 import { useUiStore } from "@/store/uiStore";
-import type { QuestionWithMessages } from "@/types";
+import type { MessageResponse, QuestionWithMessages } from "@/types";
 import { MathJaxContext } from "better-react-mathjax";
 import { useEffect, useRef, useState } from "react";
 import ChatHeader from "./ChatHeader";
 import ChatInput from "./ChatInput";
 import ChatTimeline from "./ChatTimeline";
 import ConversationsPanel from "./ConversationPanel";
-import { ChatProvider } from "./chat-context";
+import { ChatProvider, type ConversationMessage } from "./chat-context";
 
 export function ChatComponent() {
   const questionRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [conversationMessagesByConversation, setConversationMessagesByConversation] = useState<
+    Record<number, ConversationMessage[]>
+  >({});
 
   // Get conversations data and mutations
   const {
@@ -43,6 +46,45 @@ export function ChatComponent() {
 
   const [loadingQuestionId, setLoadingQuestionId] = useState<number | null>(null);
 
+  const conversationMessages =
+    currentConversationId != null
+      ? conversationMessagesByConversation[currentConversationId] ?? []
+      : [];
+
+  const appendConversationExchange = (conversationId: number, userContent: string, assistantContent: string) => {
+    const timestamp = Date.now();
+    const userMessage: ConversationMessage = {
+      id: `user-${timestamp}`,
+      role: "user",
+      content: userContent,
+      createdAt: new Date(timestamp).toISOString(),
+    };
+    const assistantMessage: ConversationMessage = {
+      id: `assistant-${timestamp + 1}`,
+      role: "assistant",
+      content: assistantContent,
+      createdAt: new Date(timestamp + 1).toISOString(),
+    };
+
+    setConversationMessagesByConversation((prev) => {
+      const existing = prev[conversationId] ?? [];
+      return {
+        ...prev,
+        [conversationId]: [...existing, userMessage, assistantMessage],
+      };
+    });
+  };
+
+  const handleGeneralConversation = (opts: {
+    conversationId: number;
+    userMessageContent: string;
+    assistantResponse: string;
+  }) => {
+    appendConversationExchange(opts.conversationId, opts.userMessageContent, opts.assistantResponse);
+    clearInputMessage();
+    clearPendingImage();
+    setLoadingQuestionId(null);
+  };
   // Initialize first conversation as current if none selected
   useEffect(() => {
     if (!currentConversationId && conversations.length > 0) {
@@ -84,6 +126,7 @@ export function ChatComponent() {
     if (!inputMessage.trim() && !pendingImage) return;
     if (!currentConversationId) return;
 
+    const conversationId = currentConversationId;
     setIsLoading(true);
 
     try {
@@ -109,7 +152,17 @@ export function ChatComponent() {
       console.log("Parsed result:", parsed);
 
       // If user is asking for a new question (request_question)
-      if (parsed.intent === "request_question" && parsed.subject) {
+      if (parsed.intent === "request_question") {
+        if (!parsed.subject) {
+          handleGeneralConversation({
+            conversationId,
+            userMessageContent: inputMessage,
+            assistantResponse:
+              parsed.response ?? "נושא זה לא זמין כרגע, אשמח לעזור בנושאים אחרים מהתכנית.",
+          });
+          return;
+        }
+
         const resp = await apiClient.api.chats["generate-question"].$post({
           json: {
             conversationId: currentConversationId,
@@ -120,6 +173,16 @@ export function ChatComponent() {
 
         if (!resp.ok) throw new Error("Failed to generate question");
         const result = await resp.json();
+
+        const initialMessage: MessageResponse | undefined = result.message
+          ? {
+              ...result.message,
+              createdAt:
+                typeof result.message.createdAt === "string"
+                  ? result.message.createdAt
+                  : new Date(result.message.createdAt).toISOString(),
+            }
+          : undefined;
 
         // Add question to local state
         addQuestionLocal(currentConversationId, {
@@ -136,6 +199,7 @@ export function ChatComponent() {
           endTime: null,
           deletedAt: null,
           createdAt: new Date().toISOString(),
+          messages: initialMessage ? [initialMessage] : [],
         } as QuestionWithMessages);
 
         setCurrentQuestion(result.id);
@@ -155,6 +219,16 @@ export function ChatComponent() {
         if (!resp.ok) throw new Error("Failed to create question from text");
         const result = await resp.json();
 
+        const initialMessage: MessageResponse | undefined = result.message
+          ? {
+              ...result.message,
+              createdAt:
+                typeof result.message.createdAt === "string"
+                  ? result.message.createdAt
+                  : new Date(result.message.createdAt).toISOString(),
+            }
+          : undefined;
+
         addQuestionLocal(currentConversationId, {
           id: result.id,
           conversationId: currentConversationId,
@@ -169,10 +243,21 @@ export function ChatComponent() {
           endTime: null,
           deletedAt: null,
           createdAt: new Date().toISOString(),
+          messages: initialMessage ? [initialMessage] : [],
         } as QuestionWithMessages);
 
         setCurrentQuestion(result.id);
         clearInputMessage();
+      }
+      // General conversational response
+      else if (parsed.intent === "chat") {
+        handleGeneralConversation({
+          conversationId,
+          userMessageContent: inputMessage,
+          assistantResponse: parsed.response ?? "",
+        });
+
+        return; // early return after handling conversation-level response
       }
       // If user is answering a question (chat)
       else if (currentQuestionId && currentQuestion) {
@@ -245,6 +330,16 @@ export function ChatComponent() {
       if (!resp.ok) throw new Error("Failed to generate question");
       const result = await resp.json();
 
+      const initialMessage: MessageResponse | undefined = result.message
+        ? {
+            ...result.message,
+            createdAt:
+              typeof result.message.createdAt === "string"
+                ? result.message.createdAt
+                : new Date(result.message.createdAt).toISOString(),
+          }
+        : undefined;
+
       addQuestionLocal(currentConversationId, {
         id: result.id,
         conversationId: currentConversationId,
@@ -259,6 +354,7 @@ export function ChatComponent() {
         endTime: null,
         deletedAt: null,
         createdAt: new Date().toISOString(),
+        messages: initialMessage ? [initialMessage] : [],
       } as QuestionWithMessages);
 
       setCurrentQuestion(result.id);
@@ -365,7 +461,7 @@ export function ChatComponent() {
           currentQuestion={currentQuestion}
           isLoading={isLoading || isUiLoading}
           loadingQuestionId={loadingQuestionId}
-          conversationMessages={[]}
+          conversationMessages={conversationMessages}
           getStatusColor={getStatusColor}
         >
           <ConversationsPanel

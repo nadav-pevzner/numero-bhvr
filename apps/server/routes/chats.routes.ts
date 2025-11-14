@@ -5,6 +5,7 @@ import { chatRepository } from "../db/chat";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { getCurriculumForLLM } from "../services/curriculum";
 import { streamStructured } from "../services/gemini";
+import type { Message } from "@numero/chat-db";
 import type {
   difficultySchema,
   questionOriginSchema,
@@ -53,6 +54,7 @@ type GenerateQuestionResponse = {
   question: string;
   difficulty: z.infer<typeof difficultySchema>;
   userMessage: string;
+  message: Message;
 };
 
 type CreateQuestionFromTextRequest = {
@@ -67,6 +69,7 @@ type CreateQuestionFromTextResponse = {
   question: string;
   difficulty: z.infer<typeof difficultySchema>;
   userMessage: string;
+  message: Message;
 };
 
 type MessageContent = string | Array<{ type: "text"; text: string } | { type: "image" }>;
@@ -98,6 +101,7 @@ type AnalyzeImageResponse = {
   difficulty: z.infer<typeof difficultySchema>;
   userMessage: string;
   inCurriculum: boolean;
+  message: Message | null;
 };
 
 const composeInitialQuestionMessage = (intro: string, question: string): string => {
@@ -178,6 +182,7 @@ async function createQuestionWithMessage(
 ): Promise<{
   question: NonNullable<Awaited<ReturnType<typeof createQuestion>>>;
   initialMessage: string;
+  message: Awaited<ReturnType<typeof createMessage>>;
 }> {
   const question = await createQuestion(conversationId, userId, {
     subject: llmData.subject,
@@ -194,7 +199,7 @@ async function createQuestionWithMessage(
 
   const initialMessage = composeInitialQuestionMessage(llmData.userMessage, llmData.question);
 
-  await createMessage({
+  const message = await createMessage({
     questionId: question.id,
     userId,
     role: "assistant",
@@ -202,7 +207,7 @@ async function createQuestionWithMessage(
   });
 
   await nameConversationIfNeeded(conversationId, userId, llmData.question, llmData.subject);
-  return { question, initialMessage };
+  return { question, initialMessage, message };
 }
 
 export const chats = new Hono<HonoEnv>()
@@ -326,7 +331,7 @@ export const chats = new Hono<HonoEnv>()
         schema: generateQuestionLLMSchema,
       });
 
-      const { question, initialMessage } = await createQuestionWithMessage(
+      const { question, initialMessage, message } = await createQuestionWithMessage(
         conversationId,
         user.id,
         llmData,
@@ -339,6 +344,7 @@ export const chats = new Hono<HonoEnv>()
         question: llmData.question,
         difficulty: llmData.difficulty,
         userMessage: initialMessage,
+        message,
       });
     } catch (error) {
       console.error("Failed to generate question: ", error);
@@ -360,7 +366,7 @@ export const chats = new Hono<HonoEnv>()
         schema: createQuestionFromTextLLMSchema,
       });
 
-      const { question, initialMessage } = await createQuestionWithMessage(
+      const { question, initialMessage, message } = await createQuestionWithMessage(
         conversationId,
         user.id,
         llmData,
@@ -373,6 +379,7 @@ export const chats = new Hono<HonoEnv>()
         question: llmData.question,
         difficulty: llmData.difficulty,
         userMessage: initialMessage,
+        message,
       });
     } catch (error) {
       console.error("Failed to create question from text: ", error);
@@ -477,10 +484,11 @@ ${transcript}
         return c.json<AnalyzeImageResponse>({
           ...llmData,
           id: 0,
+          message: null,
         });
       }
 
-      const { question, initialMessage } = await createQuestionWithMessage(
+      const { question, initialMessage, message } = await createQuestionWithMessage(
         conversationId,
         user.id,
         llmData,
@@ -495,6 +503,7 @@ ${transcript}
         difficulty: llmData.difficulty,
         userMessage: initialMessage,
         inCurriculum: llmData.inCurriculum,
+        message,
       });
     } catch (error) {
       console.error("Failed to analyze image: ", error);
