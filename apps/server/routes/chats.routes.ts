@@ -1,5 +1,4 @@
 import type { Content } from "@google/genai";
-import type { Context } from "hono";
 import { Hono } from "hono";
 import type { z } from "zod";
 import { chatRepository } from "../db/chat";
@@ -203,7 +202,6 @@ async function createQuestionWithMessage(
   });
 
   await nameConversationIfNeeded(conversationId, userId, llmData.question, llmData.subject);
-
   return { question, initialMessage };
 }
 
