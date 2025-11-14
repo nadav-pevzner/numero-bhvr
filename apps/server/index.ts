@@ -7,14 +7,17 @@ import { todos } from "./routes/todo.routes";
 
 const app = new Hono().basePath("/api");
 
+// Log CORS configuration for debugging
+console.log("CORS configured with CLIENT_URL:", env.CLIENT_URL);
+
 // IMPORTANT: CORS middleware must be registered BEFORE routes
 app.use(
   "*", // Enable CORS for all routes
   cors({
-    origin: env.CLIENT_URL,
-    allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["POST", "GET", "OPTIONS", "DELETE", "PATCH"],
-    exposeHeaders: ["Content-Length"],
+    origin: env.CLIENT_URL || "*",
+    allowHeaders: ["Content-Type", "Authorization", "Cookie", "Set-Cookie"],
+    allowMethods: ["POST", "GET", "OPTIONS", "DELETE", "PATCH", "PUT"],
+    exposeHeaders: ["Content-Length", "Set-Cookie"],
     maxAge: 600,
     credentials: true,
   }),
