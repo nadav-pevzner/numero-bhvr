@@ -15,7 +15,7 @@ export const KeyButton: React.FC<{
       type="button"
       title={tooltip}
       onClick={onClick}
-      className={`${base} ${w} border-slate-200 bg-white hover:bg-indigo-600 hover:text-white hover:border-indigo-600 shadow-sm ${k.className || ""}`}
+      className={`${base} ${w} border-slate-200 bg-white text-slate-900 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 shadow-sm ${k.className || ""}`}
     >
       {k.render ? (
         <span className="w-full h-5 inline-flex items-center justify-center">{k.render}</span>

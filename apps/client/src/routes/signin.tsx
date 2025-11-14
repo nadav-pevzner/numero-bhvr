@@ -28,7 +28,7 @@ function RouteComponent() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/chat", // Redirect to /chat after successful sign-in
+        callbackURL: `${import.meta.env.VITE_CLIENT_URL || 'http://localhost:5000'}/chat`,
       });
     } catch (err) {
       setError('Invalid email or password')

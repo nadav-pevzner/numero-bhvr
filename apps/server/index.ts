@@ -1,3 +1,4 @@
+import { env } from "@numero/env";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { auth } from "./lib/auth";
@@ -10,7 +11,7 @@ const app = new Hono().basePath("/api");
 app.use(
   "*", // Enable CORS for all routes
   cors({
-    origin: "http://localhost:5000",
+    origin: env.CLIENT_URL,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["POST", "GET", "OPTIONS", "DELETE", "PATCH"],
     exposeHeaders: ["Content-Length"],

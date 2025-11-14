@@ -132,17 +132,51 @@ export const EditorDisplay = memo<EditorDisplayProps>(
     const renderedContent = useMemo(() => {
       const els: React.ReactNode[] = [];
       let charCount = 0;
+      const shouldShowCursor = activePlaceholder === null;
 
       content.forEach((item, idx) => {
         if (item.type === "text") {
           // Split text into characters but memoize each one
           const chars = item.value.split("");
-          chars.forEach((ch) => {
+          chars.forEach((ch, charIdx) => {
+            // Insert cursor before this character if position matches
+            if (shouldShowCursor && charCount === cursorPosition) {
+              els.push(
+                <span
+                  key={`cursor-${charCount}`}
+                  className="inline-block w-0.5 h-[1.2em] bg-indigo-600 animate-pulse align-text-bottom"
+                  style={{ animation: "blink 1s infinite" }}
+                />,
+              );
+            }
+
             const key = `t-${charCount}`;
             els.push(<TextNode key={key} char={ch} index={charCount} />);
             charCount++;
           });
+
+          // If text is empty and cursor should be here
+          if (item.value === "" && shouldShowCursor && charCount === cursorPosition) {
+            els.push(
+              <span
+                key={`cursor-${charCount}`}
+                className="inline-block w-0.5 h-[1.2em] bg-indigo-600 animate-pulse align-text-bottom"
+                style={{ animation: "blink 1s infinite" }}
+              />,
+            );
+          }
         } else if (item.type === "structure") {
+          // Insert cursor before structure if position matches
+          if (shouldShowCursor && charCount === cursorPosition) {
+            els.push(
+              <span
+                key={`cursor-${charCount}`}
+                className="inline-block w-0.5 h-[1.2em] bg-indigo-600 animate-pulse align-text-bottom"
+                style={{ animation: "blink 1s infinite" }}
+              />,
+            );
+          }
+
           const html = renderKatexToHTML(renderStructureLatex(item, idx));
           const isActive = activePlaceholder && activePlaceholder.structureIndex === idx;
 
@@ -158,6 +192,17 @@ export const EditorDisplay = memo<EditorDisplayProps>(
           );
           charCount++;
         } else {
+          // Insert cursor before latex if position matches
+          if (shouldShowCursor && charCount === cursorPosition) {
+            els.push(
+              <span
+                key={`cursor-${charCount}`}
+                className="inline-block w-0.5 h-[1.2em] bg-indigo-600 animate-pulse align-text-bottom"
+                style={{ animation: "blink 1s infinite" }}
+              />,
+            );
+          }
+
           // latex node
           const html = renderKatexToHTML(item.value);
           els.push(<LatexNode key={`l-${charCount}`} html={html} />);
@@ -165,8 +210,19 @@ export const EditorDisplay = memo<EditorDisplayProps>(
         }
       });
 
+      // Cursor at the end
+      if (shouldShowCursor && charCount === cursorPosition) {
+        els.push(
+          <span
+            key="cursor-end"
+            className="inline-block w-0.5 h-[1.2em] bg-indigo-600 animate-pulse align-text-bottom"
+            style={{ animation: "blink 1s infinite" }}
+          />,
+        );
+      }
+
       return els;
-    }, [content, activePlaceholder, renderStructureLatex, onStructureClick]);
+    }, [content, cursorPosition, activePlaceholder, renderStructureLatex, onStructureClick]);
 
     const hasAttachment = !!pendingImage;
 
@@ -203,7 +259,7 @@ export const EditorDisplay = memo<EditorDisplayProps>(
                 onDragEnter={onDragEnter}
                 onDragLeave={onDragLeave}
                 onClick={onFocusInput}
-                className="min-h-20 max-h-[260px] overflow-y-auto p-3 text-[1.15rem] leading-7 font-serif focus:outline-none ring-0 shadow-none relative"
+                className="min-h-20 max-h-[260px] overflow-y-auto overflow-x-hidden p-3 text-[1.15rem] leading-7 font-serif focus:outline-none ring-0 shadow-none relative cursor-text"
               >
                 {/* Hidden input for native cursor */}
                 <input
@@ -214,11 +270,15 @@ export const EditorDisplay = memo<EditorDisplayProps>(
                   tabIndex={-1}
                 />
 
-                {/* Content wrapper with cursor caret */}
+                {/* Content wrapper with word wrapping */}
                 <div
                   ref={contentWrapperRef}
-                  className="relative"
-                  style={{ caretColor: activePlaceholder ? "transparent" : "rgb(99 102 241)" }}
+                  className="relative break-words whitespace-pre-wrap text-black font-sans"
+                  style={{
+                    caretColor: "transparent",
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
+                  }}
                 >
                   {renderedContent}
                 </div>

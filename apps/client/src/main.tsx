@@ -1,45 +1,46 @@
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { StrictMode } from 'react'
-import ReactDOM from 'react-dom/client'
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import "katex/dist/katex.min.css";
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
 
-import * as TanStackQueryProvider from './integrations/tanstack-query/root-provider'
+import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider";
 
 // Import the generated route tree
-import { routeTree } from './routeTree.gen'
+import { routeTree } from "./routeTree.gen";
 
-import "@numero/ui/styles.css"
-import './styles.css'
+import "@numero/ui/styles.css";
+import "./styles.css";
 
 // Create a new router instance
 
-const TanStackQueryProviderContext = TanStackQueryProvider.getContext()
+const TanStackQueryProviderContext = TanStackQueryProvider.getContext();
 const router = createRouter({
   routeTree,
   context: {
     ...TanStackQueryProviderContext,
   },
-  defaultPreload: 'intent',
+  defaultPreload: "intent",
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
-})
+});
 
 // Register the router instance for type safety
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 
 // Render the app
-const rootElement = document.getElementById('app')
+const rootElement = document.getElementById("app");
 if (rootElement && !rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement)
+  const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
       <TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
         <RouterProvider router={router} />
       </TanStackQueryProvider.Provider>
     </StrictMode>,
-  )
+  );
 }

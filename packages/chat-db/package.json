@@ -12,10 +12,11 @@
 		"db:seed": "bun run ./scripts/seed-local-db.script.ts"
 	},
 	"dependencies": {
+		"@neondatabase/serverless": "^1.0.2",
+		"@numero/env": "workspace:*",
 		"drizzle-orm": "^0.44.4",
 		"hono": "^4.9.0",
-		"pg": "^8.16.3",
-		"@numero/env": "workspace:*"
+		"pg": "^8.16.3"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",

@@ -293,15 +293,19 @@ export const chats = new Hono<HonoEnv>()
 
   .post("/parse-input", async (c) => {
     try {
-      const { userInput } = await c.req.json<ParseInputRequest>();
+      const body = await c.req.json<ParseInputRequest>();
+      console.log("Received parse-input request:", body);
+      const { userInput } = body;
 
       const curriculum = await getCurriculumForLLM();
       const prompt = parseInputPrompt(userInput, curriculum);
+      console.log("Generated prompt:", prompt.substring(0, 200) + "...");
 
       const parsed = await streamStructured({
         contents: prompt,
         schema: parseInputSchema,
       });
+      console.log("LLM parsed result:", parsed);
 
       return c.json<ParseInputResponse>(parsed);
     } catch (error) {

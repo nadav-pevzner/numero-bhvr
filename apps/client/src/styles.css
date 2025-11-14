@@ -25,3 +25,12 @@ body {
     rgb(var(--background-start-rgb));
   font-family: var(--font-family-sans);
 }
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}

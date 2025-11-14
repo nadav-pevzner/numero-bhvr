@@ -100,12 +100,19 @@ export function ChatComponent() {
       }
 
       // Parse user input to determine intent
+      console.log("Sending parse-input request with:", { userInput: inputMessage });
       const parseResp = await client.api.chats["parse-input"].$post({
         json: { userInput: inputMessage },
       });
 
-      if (!parseResp.ok) throw new Error("Failed to parse input");
+      console.log("Parse response status:", parseResp.status);
+      if (!parseResp.ok) {
+        const errorText = await parseResp.text();
+        console.error("Parse input failed:", errorText);
+        throw new Error("Failed to parse input");
+      }
       const parsed = await parseResp.json();
+      console.log("Parsed result:", parsed);
 
       // If user is asking for a new question (request_question)
       if (parsed.intent === "request_question" && parsed.subject) {

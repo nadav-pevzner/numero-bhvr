@@ -49,25 +49,6 @@ const TabButton = memo<{
 ));
 TabButton.displayName = "TabButton";
 
-// Memoized key row
-const KeyRow = memo<{
-  row: KeyboardKey[];
-  onKeyClick: (key: KeyboardKey) => void;
-  rowKey: string;
-}>(({ row, onKeyClick }) => (
-  <div className="flex flex-row flex-wrap gap-2">
-    {row.map((k, i) => (
-      <KeyButton
-        key={`${k.value}-${i}`}
-        k={k}
-        tooltip={specialTooltips[k.value] || undefined}
-        onClick={() => onKeyClick(k)}
-      />
-    ))}
-  </div>
-));
-KeyRow.displayName = "KeyRow";
-
 // Memoized number pad
 const NumberPad = memo<{
   onKeyClick: (key: KeyboardKey) => void;
@@ -271,13 +252,10 @@ export const KeyboardPanel = memo<KeyboardPanelProps>(
   }) => {
     const currentKeyboard = useMemo(() => keyboards[activeTab], [activeTab]);
 
-    const keyboardRows = useMemo(
-      () =>
-        currentKeyboard.rows.map((row) => {
-          const rowKey = `${activeTab}-${row.map((k) => k.value).join("-")}`;
-          return <KeyRow key={rowKey} row={row} onKeyClick={onKeyClick} rowKey={rowKey} />;
-        }),
-      [currentKeyboard.rows, activeTab, onKeyClick],
+    // Flatten all rows into a single array of keys
+    const allKeys = useMemo(
+      () => currentKeyboard.rows.flat(),
+      [currentKeyboard.rows],
     );
 
     return (
@@ -295,8 +273,15 @@ export const KeyboardPanel = memo<KeyboardPanelProps>(
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 mb-4">
-          <div className="flex-1 space-y-2" role="group" aria-label="מקשי מתמטיקה">
-            {keyboardRows}
+          <div className="flex-1 flex flex-row flex-wrap gap-2" role="group" aria-label="מקשי מתמטיקה">
+            {allKeys.map((k, i) => (
+              <KeyButton
+                key={`${k.value}-${i}`}
+                k={k}
+                tooltip={specialTooltips[k.value] || undefined}
+                onClick={() => onKeyClick(k)}
+              />
+            ))}
           </div>
 
           <div className="flex gap-2" role="group" aria-label="מקלדת מספרים ופעולות">
