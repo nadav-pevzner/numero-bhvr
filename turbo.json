@@ -7,6 +7,29 @@
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"outputs": ["dist/**"]
 		},
+		"server#build": {
+			"dependsOn": ["^build"],
+			"env": [
+				"AUTH_DB_URL",
+				"CHAT_DB_URL",
+				"BETTER_AUTH_SECRET",
+				"BETTER_AUTH_URL",
+				"CLIENT_URL",
+				"GOOGLE_CLIENT_ID",
+				"GOOGLE_CLIENT_SECRET",
+				"GOOGLE_GENERATIVE_AI_API_KEY",
+				"NODE_ENV"
+			],
+			"outputs": []
+		},
+		"client#build": {
+			"dependsOn": ["^build"],
+			"env": [
+				"VITE_API_URL",
+				"VITE_CLIENT_URL"
+			],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+		},
 		"lint": {},
 		"dev": {
 			"cache": false,
