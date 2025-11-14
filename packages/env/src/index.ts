@@ -1,9 +1,3 @@
-// Simple environment variable accessor that works in both Node.js and Cloudflare Workers
-export const env =
-  typeof process !== "undefined" && process.env
-    ? (process.env as Record<string, string>)
-    : ({} as Record<string, string>);
-
 // Type-safe environment variable access
 export type Env = {
   AUTH_DB_URL: string;
@@ -16,3 +10,14 @@ export type Env = {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
 };
+
+// Lazy environment variable accessor that works in both Node.js and Cloudflare Workers
+// Using a Proxy to read process.env at access time, not at module initialization
+export const env = new Proxy({} as Env, {
+  get(_target, prop: string) {
+    if (typeof process !== "undefined" && process.env) {
+      return process.env[prop];
+    }
+    return undefined;
+  },
+});
