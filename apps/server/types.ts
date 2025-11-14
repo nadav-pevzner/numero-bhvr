@@ -1,10 +1,10 @@
+import type { Session, User } from "better-auth/types";
 import type { ChatRepository } from "@numero/chat-db";
-import type { auth } from "./lib/auth";
 
 export type HonoEnv = {
   Variables: {
-    user: typeof auth.$Infer.Session.user;
+    user: User;
     chatRepo: ChatRepository;
-    session: typeof auth.$Infer.Session.session;
+    session: Session;
   };
 };
