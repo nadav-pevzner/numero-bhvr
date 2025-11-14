@@ -7,6 +7,15 @@ import { todos } from "./routes/todo.routes";
 
 const app = new Hono().basePath("/api");
 
+// Root route for health check
+app.get("/", (c) => {
+  return c.json({
+    status: "ok",
+    message: "Numero BHVR Server",
+    version: "1.0.0"
+  });
+});
+
 // Log CORS configuration for debugging
 console.log("CORS configured with CLIENT_URL:", env.CLIENT_URL);
 

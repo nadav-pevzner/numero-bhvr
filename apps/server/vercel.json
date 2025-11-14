@@ -3,7 +3,11 @@
   "bunVersion": "1.x",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/",
+      "destination": "/api/root"
+    },
+    {
+      "source": "/api/:path*",
       "destination": "/api/index"
     }
   ]
