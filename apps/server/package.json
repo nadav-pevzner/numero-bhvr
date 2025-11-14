@@ -2,7 +2,11 @@
   "name": "server",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot index.ts"
+    "dev": "bun run --hot index.ts",
+    "build": "echo 'Build complete'",
+    "deploy": "wrangler deploy",
+    "deploy:dev": "wrangler deploy --env development",
+    "deploy:prod": "wrangler deploy --env production"
   },
   "dependencies": {
     "@google/genai": "^1.29.1",

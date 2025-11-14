@@ -1,13 +1,11 @@
 import { desc, eq } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
 import { todos } from "./schema";
 
-export function createAuthQueries(
-	db: NodePgDatabase<Record<string, never>> & {
-		$client: Pool;
-	},
-) {
+type DbClient = NodePgDatabase<Record<string, never>> | NeonHttpDatabase<Record<string, never>>;
+
+export function createAuthQueries(db: DbClient) {
 	return {
 		getTodosByUserId: async (userId: string) => {
 			return db

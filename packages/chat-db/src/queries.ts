@@ -1,5 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 import {
 	conversations,
@@ -14,7 +15,7 @@ import {
 	type Question,
 } from "./schema";
 
-type DbClient = NodePgDatabase<typeof schema>;
+type DbClient = NodePgDatabase<typeof schema> | NeonHttpDatabase<typeof schema>;
 
 export function createChatRepository(db: DbClient) {
 	return {
@@ -78,7 +79,7 @@ export function createChatRepository(db: DbClient) {
 						eq(conversations.userId, userId),
 					),
 				)
-				.returning({ id: conversations.id });
+				.returning();
 
 			return deleted.length > 0;
 		},
