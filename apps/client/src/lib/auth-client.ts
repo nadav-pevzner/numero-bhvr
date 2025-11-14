@@ -1,5 +1,9 @@
 import { createAuthClient } from 'better-auth/react'
+import { getAuthBaseUrl } from './api-client'
 
 export const authClient = createAuthClient({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/auth',
+  baseURL: getAuthBaseUrl(),
+  fetchOptions: {
+    credentials: 'include',
+  },
 })

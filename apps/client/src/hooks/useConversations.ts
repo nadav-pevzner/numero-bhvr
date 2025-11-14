@@ -1,14 +1,8 @@
 // hooks/useConversations.ts
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { hc } from "hono/client";
-import type { AppType } from "server";
+import { apiClient } from "../lib/api-client";
 import type { ConversationWithQuestions, QuestionResponse } from "../types";
-
-const client = hc<AppType>(import.meta.env.VITE_API_URL || "", {
-  fetch: (input: RequestInfo | URL, init?: RequestInit) =>
-    fetch(input, { ...init, credentials: "include" }),
-});
 
 const CONVERSATIONS_KEY = ["conversations"] as const;
 
@@ -18,12 +12,12 @@ export function useConversations() {
   const conversationsQuery = useQuery({
     queryKey: CONVERSATIONS_KEY,
     queryFn: async () => {
-      const resp = await client.api.chats.conversations.$get();
+      const resp = await apiClient.api.chats.conversations.$get();
       if (!resp.ok) throw new Error("Failed to fetch conversations");
       const conversations = await resp.json();
 
       if (conversations.length === 0) {
-        const initResp = await client.api.chats.conversations.initialize.$post();
+        const initResp = await apiClient.api.chats.conversations.initialize.$post();
         if (!initResp.ok) throw new Error("Failed to initialize conversations");
         return [await initResp.json()];
       }
@@ -35,7 +29,7 @@ export function useConversations() {
   // Create
   const createConversationMutation = useMutation({
     mutationFn: async (name?: string) => {
-      const resp = await client.api.chats.conversations.$post({
+      const resp = await apiClient.api.chats.conversations.$post({
         json: { name: name ?? "שיחה חדשה" },
       });
       if (!resp.ok) throw new Error("Failed to create conversation");
@@ -49,7 +43,7 @@ export function useConversations() {
   // Delete
   const deleteConversationMutation = useMutation({
     mutationFn: async (id: number) => {
-      const resp = await client.api.chats.conversations[":id"].$delete({
+      const resp = await apiClient.api.chats.conversations[":id"].$delete({
         param: { id: id.toString() },
       });
       if (!resp.ok) throw new Error("Failed to delete conversation");
@@ -63,7 +57,7 @@ export function useConversations() {
   // Rename
   const updateConversationNameMutation = useMutation({
     mutationFn: async (params: { id: number; name: string }) => {
-      const resp = await client.api.chats.conversations[":id"].$patch({
+      const resp = await apiClient.api.chats.conversations[":id"].$patch({
         param: { id: params.id.toString() },
         json: { name: params.name.trim() },
       });

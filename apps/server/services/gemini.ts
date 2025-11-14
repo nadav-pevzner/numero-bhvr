@@ -46,15 +46,31 @@ export async function streamStructured<TSchema extends z.ZodTypeAny>(opts: {
     throw new Error(`Invalid JSON response from Gemini: ${fullText}`);
   }
 
-  // Check if we got a primitive instead of an object
-  if (typeof json === "string" || typeof json === "number" || typeof json === "boolean") {
-    console.error("❌ Received primitive value instead of object");
+  // Gemini sometimes returns JSON as a string literal; attempt a second parse before failing.
+  if (typeof json === "string") {
+    const trimmed = json.trim();
+    if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+      try {
+        json = JSON.parse(trimmed);
+      } catch (nestedParseError) {
+        console.error("Failed to parse nested JSON string:", nestedParseError);
+        console.error("Nested JSON candidate:", json);
+        throw new Error(
+          `Gemini returned a JSON string that could not be parsed. ` +
+            `Received: ${json}. Error: ${(nestedParseError as Error).message}`,
+        );
+      }
+    }
+  }
+
+  // Bail out if a primitive remains after the nested parse attempt.
+  if (typeof json === "string" || typeof json === "number" || typeof json === "boolean" || json === null) {
+    console.error("❌ Received primitive value instead of structured object");
     console.error("Received:", json);
     console.error("Expected schema:", zodToJsonSchema(schema));
     throw new Error(
-      `Gemini returned a primitive value instead of structured object. ` +
-        `This usually means the prompt needs to be more explicit about returning a JSON object. ` +
-        `Received: ${JSON.stringify(json)}`,
+      `Gemini returned a primitive value instead of structured data. ` +
+        `Expected JSON compatible with the schema but received: ${JSON.stringify(json)}`,
     );
   }
 

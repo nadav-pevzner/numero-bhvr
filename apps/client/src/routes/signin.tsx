@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { floatingElements } from '../constants/signin';
 import { authClient } from '../lib/auth-client';
 
@@ -16,8 +16,14 @@ function RouteComponent() {
   const [loading, setLoading] = useState(false)
 	const [isHovered, setIsHovered] = useState(false);
 
+  useEffect(() => {
+    if (session) {
+      router.navigate({ to: '/chat', replace: true });
+    }
+  }, [session, router]);
+
   if (session) {
-    router.navigate({ to: '/chat' })
+    return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

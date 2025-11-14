@@ -1,21 +1,15 @@
 import { useConversations } from "@/hooks/useConversations";
+import { apiClient } from "@/lib/api-client";
 import { getStatusColor, mathJaxConfig } from "@/lib/utils";
 import { useUiStore } from "@/store/uiStore";
 import type { QuestionWithMessages } from "@/types";
 import { MathJaxContext } from "better-react-mathjax";
-import { hc } from "hono/client";
 import { useEffect, useRef, useState } from "react";
-import type { AppType } from "../../../../server";
 import ChatHeader from "./ChatHeader";
 import ChatInput from "./ChatInput";
 import ChatTimeline from "./ChatTimeline";
 import ConversationsPanel from "./ConversationPanel";
 import { ChatProvider } from "./chat-context";
-
-const client = hc<AppType>(import.meta.env.VITE_API_URL || "", {
-  fetch: (input: RequestInfo | URL, init?: RequestInit) =>
-    fetch(input, { ...init, credentials: "include" }),
-});
 
 export function ChatComponent() {
   const questionRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -101,7 +95,7 @@ export function ChatComponent() {
 
       // Parse user input to determine intent
       console.log("Sending parse-input request with:", { userInput: inputMessage });
-      const parseResp = await client.api.chats["parse-input"].$post({
+      const parseResp = await apiClient.api.chats["parse-input"].$post({
         json: { userInput: inputMessage },
       });
 
@@ -116,7 +110,7 @@ export function ChatComponent() {
 
       // If user is asking for a new question (request_question)
       if (parsed.intent === "request_question" && parsed.subject) {
-        const resp = await client.api.chats["generate-question"].$post({
+        const resp = await apiClient.api.chats["generate-question"].$post({
           json: {
             conversationId: currentConversationId,
             subject: parsed.subject,
@@ -149,7 +143,7 @@ export function ChatComponent() {
       }
       // If user provided question text (paste_question)
       else if (parsed.intent === "paste_question" && parsed.extractedQuestion && parsed.subject) {
-        const resp = await client.api.chats["create-question-from-text"].$post({
+        const resp = await apiClient.api.chats["create-question-from-text"].$post({
           json: {
             conversationId: currentConversationId,
             questionText: parsed.extractedQuestion,
@@ -195,7 +189,7 @@ export function ChatComponent() {
           },
         ];
 
-        const resp = await client.api.chats["handle-message"].$post({
+        const resp = await apiClient.api.chats["handle-message"].$post({
           json: {
             questionId: currentQuestionId,
             messages,
@@ -240,7 +234,7 @@ export function ChatComponent() {
     setIsLoading(true);
 
     try {
-      const resp = await client.api.chats["generate-question"].$post({
+      const resp = await apiClient.api.chats["generate-question"].$post({
         json: {
           conversationId: currentConversationId,
           subject: "אלגברה",
@@ -314,7 +308,7 @@ export function ChatComponent() {
     setIsLoading(true);
 
     try {
-      const resp = await client.api.chats["analyze-image"].$post({
+      const resp = await apiClient.api.chats["analyze-image"].$post({
         json: {
           conversationId: currentConversationId,
           imageData: pendingImage.base64Data,
