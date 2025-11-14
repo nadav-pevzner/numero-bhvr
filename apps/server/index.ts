@@ -7,12 +7,17 @@ import { todos } from "./routes/todo.routes";
 
 const app = new Hono().basePath("/api");
 
-// Root route for health check
+// Health check at root
 app.get("/", (c) => {
   return c.json({
     status: "ok",
     message: "Numero BHVR Server",
-    version: "1.0.0"
+    version: "1.0.0",
+    endpoints: {
+      auth: "/api/auth/**",
+      chats: "/api/chats",
+      todos: "/api/todos"
+    }
   });
 });
 
